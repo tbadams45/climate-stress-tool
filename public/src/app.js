@@ -13,8 +13,8 @@ var app = angular.module('cst',
    'cst.weathergen',
    'cst.charts',
    // 'cst.sim',
-   'cst.model'
-   // 'cst.map'
+   'cst.model',
+   'cst.map'
    ]);
 
 app

@@ -44,7 +44,6 @@ router.post('/wgen', function(req, res) {
           // } else {
           //   req.session.jobs = [job.id];
           // }
-
           res.send(job);
         });
         job.on('failed', function() {

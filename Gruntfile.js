@@ -2,7 +2,10 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     jshint: {
-      all: [ 'Gruntfile.js', 'public/src/**/*.js' ]
+      files: ['Gruntfile.js', 'public/src/**/*.js'],
+      options: {
+        reporterOutput: ""
+      }
     },
     concat: {
       options: {
@@ -20,7 +23,8 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          'public/dist/app.min.js': 'public/dist/app.js'
+          'public/dist/app.min.js': ['<%= concat.dist.dest %>']
+          //'public/dist/app.min.js': 'public/dist/app.js'
         }
       }
     },
