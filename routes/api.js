@@ -13,7 +13,7 @@ var kue = require('kue'),
 var conString = "postgres://jeff:jeff@localhost/cst";
 
 router.post('/wgen', function(req, res) {
-  // console.log(req.body);
+  console.log("in API, inputs: ", req.body.inputs);
   // var data = req.body.data;
   var uid = uuid.v4();
   // var sessionID = req.sessionID;

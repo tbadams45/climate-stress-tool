@@ -20,17 +20,20 @@ angular.module('cst.weathergen')
             longitude: longitude
           }
         })
-        .success(function(data, status, headers, config) {
-          angular.forEach(data, function(d) {
-            d.date = new Date(d.date);
-          });
-          srv.source = 'location';
-          srv.attrs = {
-            latitude: latitude,
-            longitude: longitude
-          };
-          srv.values = data;
-        });
+        .then(
+            function success(data) {
+              angular.forEach(data, function(d) {
+                d.date = new Date(d.date);
+              });
+
+              srv.source = 'location';
+              srv.attrs = {
+                latitude: latitude,
+                longitude: longitude
+              };
+              srv.values = data;
+            },
+          function error(reason){});
     };
 
     this.getValuesFromFile = function(file) {

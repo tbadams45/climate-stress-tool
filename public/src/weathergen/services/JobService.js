@@ -14,19 +14,32 @@ angular.module('cst.weathergen')
         } else {
           url = '/api/batch';
         }
+        console.log("inputs in postJob: ", inputs);
+
         return $http.post(url, {
             data: data,
             inputs: inputs
           })
-          .success(function(job, status, headers, config) {
+          .then(function successCallback(value) {
             srv.jobs.push({
               type: type,
               data: data,
-              inputs: inputs,
-              job: job
+              inputs: inputs
             });
-            return job;
+            console.log("in success callback");
+            return value;
+          }, function failureCallback (reason) {
+            console.log("Posting job failed");
           });
+          // .success(function(job, status, headers, config) {
+          //   srv.jobs.push({
+          //     type: type,
+          //     data: data,
+          //     inputs: inputs,
+          //     job: job
+          //   });
+          //   return job;
+          // });
       };
 
       this.getJob = function(id) {

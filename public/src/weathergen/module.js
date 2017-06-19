@@ -64,13 +64,15 @@ app.config(['$stateProvider',
           job: function($stateParams, $state, messageCenterService, jobService) {
             console.log('resolve job');
             return jobService.getJob($stateParams.id)
-              .success(function(data) { return data; })
-              .error(function(data) {
-                messageCenterService.add('danger', 'Error getting job: ' + data, {
-                  status: messageCenterService.status.next,
-                  timeout: 3000
-                });
-                $state.go('weathergen.sim.jobs');
+              .then(function success(data) {
+                  console.log("'data' returned by then function after getJob: ", data);
+                  return data;
+              }, function failure(data) {
+                  messageCenterService.add('danger', 'Error getting job: ' + data, {
+                      status: messageCenterService.status.next,
+                      timeout: 3000
+                  });
+                  $state.go('weathergen.sim.jobs');
               });
           }
         },
