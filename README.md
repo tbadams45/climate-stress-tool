@@ -1,11 +1,11 @@
 UMass Climate Stress Tool
 =========================
 
-Climate Stress Tool developed by the [UMass HydroSystems Research Group](http://cee.umass.edu/cee/hydrosystems)
+Climate Stress Tool developed by the [UMass HydroSystems Research Group](http://cee.umass.edu/cee/hydrosystems).
 
-[Jeffrey D. Walker, PhD](http://walkerjeff.com)
+Original application developed by [Jeffrey D. Walker, PhD](http://walkerjeff.com) in 2015.
 
-This application is web-based interface to the [weathergen R package](http://walkerjeffd.github.io/weathergen), which contains a semi-parametric stochastic weather generator developed by Scott Steinschneider. More details on the weather generator are available in:
+This application is a web-based interface to the [weathergen R package](http://walkerjeffd.github.io/weathergen), which contains a semi-parametric stochastic weather generator developed by Scott Steinschneider. More details on the weather generator are available in:
 
 > Steinschneider, S., & Brown, C. (2013). A semiparametric multivariate, multisite weather generator with low-frequency variability for use in climate risk assessments. Water Resources Research, 49(11), 7205–7220. doi:10.1002/wrcr.20528
 
@@ -30,7 +30,7 @@ The application provides access to the [Gridded Meteorological Data: 1949-2010](
 - Job Queue (kue/redis)
 
 ## Development Server
-a
+
 To run the development server:
 
 Start redis server:
