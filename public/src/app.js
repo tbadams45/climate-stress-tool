@@ -12,8 +12,6 @@ var app = angular.module('cst',
    'cst.home',
    'cst.weathergen',
    'cst.charts',
-   // 'cst.sim',
-   'cst.model',
    'cst.map'
    ]);
 
