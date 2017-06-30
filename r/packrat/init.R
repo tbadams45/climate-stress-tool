@@ -1,9 +1,39 @@
 local({
 
-  libDir <- file.path('packrat', 'lib', R.version$platform, getRversion())
+  ## Helper function to get the path to the library directory for a
+  ## given packrat project.
+  getPackratLibDir <- function(projDir = NULL) {
+    path <- file.path("packrat", "lib", R.version$platform, getRversion())
 
-  if (is.na(Sys.getenv("RSTUDIO_PACKRAT_BOOTSTRAP", unset = NA)) &&
-        suppressWarnings(requireNamespace("packrat", quietly = TRUE, lib.loc = libDir))) {
+    if (!is.null(projDir)) {
+
+      ## Strip trailing slashes if necessary
+      projDir <- sub("/+$", "", projDir)
+
+      ## Only prepend path if different from current working dir
+      if (!identical(normalizePath(projDir), normalizePath(getwd())))
+        path <- file.path(projDir, path)
+    }
+
+    path
+  }
+
+  ## Ensure that we set the packrat library directory relative to the
+  ## project directory. Normally, this should be the working directory,
+  ## but we also use '.rs.getProjectDirectory()' if necessary (e.g. we're
+  ## rebuilding a project while within a separate directory)
+  libDir <- if (exists(".rs.getProjectDirectory"))
+    getPackratLibDir(.rs.getProjectDirectory())
+  else
+    getPackratLibDir()
+
+  ## Unload packrat in case it's loaded -- this ensures packrat _must_ be
+  ## loaded from the private library. Note that `requireNamespace` will
+  ## succeed if the package is already loaded, regardless of lib.loc!
+  if ("packrat" %in% loadedNamespaces())
+    try(unloadNamespace("packrat"), silent = TRUE)
+
+  if (suppressWarnings(requireNamespace("packrat", quietly = TRUE, lib.loc = libDir))) {
 
     # Check 'print.banner.on.startup' -- when NA and RStudio, don't print
     print.banner <- packrat::get_opts("print.banner.on.startup")
@@ -15,18 +45,30 @@ local({
     return(packrat::on(print.banner = print.banner))
   }
 
-  ## Bootstrapping -- only performed in interactive contexts
-  if (interactive()) {
+  ## Escape hatch to allow RStudio to handle bootstrapping. This
+  ## enables RStudio to provide print output when automagically
+  ## restoring a project from a bundle on load.
+  if (!is.na(Sys.getenv("RSTUDIO", unset = NA)) &&
+      is.na(Sys.getenv("RSTUDIO_PACKRAT_BOOTSTRAP", unset = NA))) {
+    Sys.setenv("RSTUDIO_PACKRAT_BOOTSTRAP" = "1")
+    setHook("rstudio.sessionInit", function(...) {
+      # Ensure that, on sourcing 'packrat/init.R', we are
+      # within the project root directory
+      if (exists(".rs.getProjectDirectory")) {
+        owd <- getwd()
+        setwd(.rs.getProjectDirectory())
+        on.exit(setwd(owd), add = TRUE)
+      }
+      source("packrat/init.R")
+    })
+    return(invisible(NULL))
+  }
 
-    ## Escape hatch to allow RStudio to handle initialization
-    if (!is.na(Sys.getenv("RSTUDIO", unset = NA)) &&
-          is.na(Sys.getenv("RSTUDIO_PACKRAT_BOOTSTRAP", unset = NA))) {
-      Sys.setenv("RSTUDIO_PACKRAT_BOOTSTRAP" = "1")
-      setHook("rstudio.sessionInit", function(...) {
-        source("packrat/init.R")
-      })
-      return(invisible(NULL))
-    }
+  ## Bootstrapping -- only performed in interactive contexts,
+  ## or when explicitly asked for on the command line
+  if (interactive() || "--bootstrap-packrat" %in% commandArgs(TRUE)) {
+
+    needsRestore <- "--bootstrap-packrat" %in% commandArgs(TRUE)
 
     message("Packrat is not installed in the local library -- ",
             "attempting to bootstrap an installation...")
@@ -77,7 +119,8 @@ local({
       }
 
       # Restore the project, unload the temporary packrat, and load the private packrat
-      packrat::restore(prompt = FALSE, restart = TRUE)
+      if (needsRestore)
+        packrat::restore(prompt = FALSE, restart = TRUE)
 
       ## This code path only reached if we didn't restart earlier
       unloadNamespace("packrat")
@@ -138,7 +181,7 @@ local({
     ## an 'installed from source' version
 
     ## -- InstallAgent -- ##
-    installAgent <- 'InstallAgent: packrat 0.4.1.8'
+    installAgent <- 'InstallAgent: packrat 0.4.8-20'
 
     ## -- InstallSource -- ##
     installSource <- 'InstallSource: source'
@@ -153,7 +196,8 @@ local({
     library("packrat", character.only = TRUE, lib.loc = lib)
 
     message("> Restoring library")
-    restore(restart = FALSE)
+    if (needsRestore)
+      packrat::restore(prompt = FALSE, restart = FALSE)
 
     # If the environment allows us to restart, do so with a call to restore
     restart <- getOption("restart")
@@ -165,7 +209,7 @@ local({
 
     # Callers (source-erers) can define this hidden variable to make sure we don't enter packrat mode
     # Primarily useful for testing
-    if (!exists(".__DONT_ENTER_PACKRAT_MODE__.")) {
+    if (!exists(".__DONT_ENTER_PACKRAT_MODE__.") && interactive()) {
       message("> Packrat bootstrap successfully completed. Entering packrat mode...")
       packrat::on()
     }

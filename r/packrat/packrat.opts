@@ -1,8 +1,15 @@
-auto.snapshot: TRUE
+auto.snapshot: FALSE
 use.cache: FALSE
 print.banner.on.startup: auto
 vcs.ignore.lib: TRUE
-vcs.ignore.src: TRUE
+vcs.ignore.src: FALSE
 external.packages: 
-local.repos: ~/R/packages
+local.repos: ~/R/source-packages
 load.external.packages.on.startup: TRUE
+ignored.packages: 
+quiet.package.installation: TRUE
+snapshot.recommended.packages: FALSE
+snapshot.fields:
+    Imports
+    Depends
+    LinkingTo

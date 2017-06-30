@@ -7,8 +7,13 @@ var fs = require('fs')
 var env = process.env.NODE_ENV || 'development',
     config = require('../config/config')[env]
 
+console.log("about to try to connect to redis");
 var kue = require('kue'),
     jobs = kue.createQueue();
+
+jobs.on( 'error', function( err ) {
+    console.log( 'Oops... ', err );
+});
 
 var conString = "postgres://jeff:jeff@localhost/cst";
 
