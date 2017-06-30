@@ -29,22 +29,84 @@ The application provides access to the [Gridded Meteorological Data: 1949-2010](
 - Database (PostgreSQL)
 - Job Queue (kue/redis)
 
-## Development Server
+## Development/Production Server
 
-To run the development server:
+### Secrets
 
-Start redis server:
+In order to run the app successfully, you'll need access to the S3 bucket where the 
+runs are stored. You need a secret (password) for this: email Tim Adams at tbadams45@gmail.com to get it.
+
+When you do get it, create a file at ~/.aws/credentials with the following contents:
+
+```
+[default]
+aws_access_key_id = SAME_AS_BELOW_OR_WHATEVER_YOU_HAD_ORIGINALLY
+aws_secret_access_key = SAME_AS_BELOW_OR_WHATEVER_YOU_HAD_ORIGINALLY
+
+[weathergen-api]
+aws_access_key_id = ACCESS_KEY_ID_ILL_SEND_YOU
+aws_secret_access_key = SECRET_ACCESS_KEY_ILL_SEND_YOU
+
+```
+
+### Installing the server
+
+Spin up a new Ubuntu 16.04 instance on EC2 or elsewhere. (Or just run on Virtualbox/your local machine). Then run:
+
+```bash
+sudo apt-get update
+sudo apt-get install git
+
+# get the app
+git clone https://github.com/tbadams45/climate-stress-tool.git
+cd climate-stress-tool
+
+# install necessary libaries and pacakages
+./setup.sh
+cd worker
+./setup.sh
+```
+
+If you can't run the setup.sh files, try using `chmod u+x setup.sh` in both the main and the worker directory.
+
+### Running the server
+
+#### Production server
+
+To run the production server:
+
+Start redis server in one terminal:
 ```
 redis-server
 ```
 
-Start grunt and npm:
+Start npm in another terminals:
+```
+npm start
+```
+
+Start worker app in another terminal:
+```
+cd worker
+node app.js
+```
+
+#### Development server
+
+To run the development server:
+
+Start redis server in one terminal:
+```
+redis-server
+```
+
+Start grunt and npm in two separate terminals:
 ```
 grunt dev
 npm run dev
 ```
 
-Start worker app:
+Start worker app in another terminal:
 ```
 cd worker
 node app.js
